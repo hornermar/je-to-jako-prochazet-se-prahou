@@ -1,68 +1,64 @@
-// Grid dimensions based on pragueMap
-const rows = pragueMap.length;
-const cols = pragueMap[0].length;
+const rows = grid.length;
+const cols = grid[0].length;
 
 // Calculate cell size to fill window height
 const calculatedCellSize = Math.floor(window.innerHeight / rows);
-const cellSize = calculatedCellSize < 20 ? 20 : calculatedCellSize;
+const minCellSize = 17;
+const cellSize =
+  calculatedCellSize < minCellSize ? minCellSize : calculatedCellSize;
 
-const offsetY = Math.floor(cellSize * 1.05); // Y offset for emojis
+const camera = {
+  x: 0,
+  y: 0,
+};
+
+const route = {
+  start: { x: 27, y: 20 },
+  end: { x: 40, y: 16 },
+};
 
 function setup() {
   frameRate(30);
-  createCanvas(cols * cellSize, rows * cellSize);
+  createCanvas(window.innerWidth, window.innerHeight);
 
-  initializePlayer(18, 14);
+  initializePlayer(route.start.x, route.start.y);
+}
 
-  // p5 is going to call draw() repeatedly now
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function updateCamera() {
+  // Calculate target camera position to center player on screen
+  const targetX = player.position.x + cellSize / 2 - width / 2;
+  const targetY = player.position.y + cellSize / 2 - height / 2;
+
+  // Direct camera movement with bounds checking
+  const worldWidth = cols * cellSize;
+  const worldHeight = rows * cellSize;
+
+  camera.x = constrain(targetX, 0, Math.max(0, worldWidth - width));
+  camera.y = constrain(targetY, 0, Math.max(0, worldHeight - height));
 }
 
 function draw() {
-  background(220);
+  startCountdown();
 
-  // Draw grid
-  fill(61, 84, 62);
-  textSize(cellSize);
+  updateCountdown();
+  updateCamera();
 
-  // Draw Prague map
-  stroke(255); // White stroke/border
-  strokeWeight(1); // Thin border
-  for (let iy = 0; iy < pragueMap.length; iy++) {
-    for (let ix = 0; ix < pragueMap[iy].length; ix++) {
-      const cell = pragueMap[iy][ix];
-      if (cell === 0) {
-        fill(216, 239, 223);
-        rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
-      } else if (cell === 1) {
-        fill(254, 248, 231);
-        rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
-      } else if (cell === 2) {
-        fill(254, 243, 211);
-        rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
-      } else if (cell === 3) {
-        fill(175, 204, 250);
-        rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
-      } else if (cell === 5) {
-        fill(120, 120, 120);
-        rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
-      }
-    }
-  }
+  // Apply camera transformation for world objects
+  push();
+  translate(-camera.x, -camera.y);
 
-  // For now display artworks
-  for (let artwork of artworks) {
-    const position = artwork.position;
-
-    textAlign(CENTER, CENTER);
-    textSize(cellSize);
-    text(
-      "◾",
-      position.x * cellSize + cellSize / 2,
-      position.y * cellSize + offsetY + cellSize / 2
-    );
-  }
+  drawGrid();
 
   // Handle user input and draw player
   movePlayer();
   drawPlayer();
+
+  pop();
+
+  // Draw UI elements outside of camera transformation
+  drawCountdown();
 }

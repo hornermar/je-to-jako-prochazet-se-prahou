@@ -1,24 +1,28 @@
-const player1 = {
-  x: 0,
-  y: 0,
+const player = {
+  position: { x: 0, y: 0 },
   isMoving: false,
-  isAlive: true,
-  direction: "right", // default direction of the emoji
+  direction: "right",
 };
 
 function initializePlayer(gridX, gridY) {
-  player1.x = gridX * cellSize;
-  player1.y = gridY * cellSize;
+  player.position.x = gridX * cellSize;
+  player.position.y = gridY * cellSize;
 }
 
-/**
- * This function is called 60 times/second
- * It should move player based on user input
- * But only if there's no collision
- */
 function movePlayer() {
   let isMoving = false;
-  const speed = Math.floor(deltaTime * 0.08);
+
+  // Get current player grid position
+  const currentGridPos = positionToCell({
+    x: player.position.x + cellSize / 2,
+    y: player.position.y + cellSize / 2,
+  });
+
+  const isOutOfCity =
+    grid[currentGridPos.y] && grid[currentGridPos.y][currentGridPos.x] === 0;
+
+  const baseSpeed = Math.max(2, Math.floor(cellSize * 0.3));
+  const speed = isOutOfCity ? baseSpeed * 0.3 : baseSpeed;
 
   let deltaX = 0;
   let deltaY = 0;
@@ -26,11 +30,11 @@ function movePlayer() {
   if (keyIsDown(RIGHT_ARROW)) {
     deltaX = 1;
     isMoving = true;
-    player1.direction = "right";
+    player.direction = "right";
   } else if (keyIsDown(LEFT_ARROW)) {
     deltaX = -1;
     isMoving = true;
-    player1.direction = "left";
+    player.direction = "left";
   }
 
   if (keyIsDown(UP_ARROW)) {
@@ -41,43 +45,38 @@ function movePlayer() {
     isMoving = true;
   }
 
-  player1.isMoving = isMoving;
-  player1.x += deltaX * speed;
-  player1.y += deltaY * speed;
+  const { position } = player;
+  const newX = position.x + deltaX * speed;
+  const newY = position.y + deltaY * speed;
 
-  if (
-    player1.x < 0 ||
-    player1.x > width ||
-    player1.y < 0 ||
-    player1.y > height
-  ) {
-    player1.isAlive = false;
+  // Check collision at the center of the player's new position
+  const newPosition = positionToCell({
+    x: newX + cellSize / 2,
+    y: newY + cellSize / 2,
+  });
+
+  if (isCollidingWithObstacle(newPosition)) {
+    console.log("Collision detected, player cannot move");
+    return;
+  }
+
+  player.isMoving = isMoving;
+  player.position = stayInTheWorld({ x: newX, y: newY });
+
+  if (isPlayerAtEnd()) {
+    console.log("🎉 Congratulations! You reached the end!");
+    stopCountdown();
   }
 }
 
 function drawPlayer() {
-  if (player1.isMoving && player1.isAlive) {
-    // damping = Math.abs(Math.sin(millis() / 50)) * 3; // 0 - 3
-  }
-  textSize(cellSize);
+  const { position } = player;
 
-  if (player1.isAlive) {
-    push(); // Save current transformation state
+  const isFlipped = player.direction === "right" ? true : false;
 
-    // Move to player position for transformations
-    translate(player1.x + cellSize / 2, player1.y + offsetY + cellSize / 2);
-
-    // Apply transformations only for left/right
-    if (player1.direction === "right") {
-      scale(-1, 1); // Flip horizontally for left direction
-    }
-    // Right direction uses default (no transformation)
-
-    textAlign(CENTER, CENTER);
-    text("🚶‍♀️", 0, 0);
-
-    pop();
-  } else {
-    text("💀", player1.x, player1.y + offsetY);
-  }
+  drawInGrid(
+    { x: position.x / cellSize, y: position.y / cellSize },
+    "🚶‍♀️",
+    isFlipped
+  );
 }
