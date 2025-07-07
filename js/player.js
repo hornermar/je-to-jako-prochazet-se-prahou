@@ -18,8 +18,10 @@ function movePlayer() {
     y: player.position.y + cellSize / 2,
   });
 
-  const isOutOfCity =
-    grid[currentGridPos.y] && grid[currentGridPos.y][currentGridPos.x] === 0;
+  const currentContent =
+    grid[currentGridPos.y] && grid[currentGridPos.y][currentGridPos.x];
+
+  const isOutOfCity = currentContent === 0 || currentContent === 3;
 
   const baseSpeed = Math.max(2, Math.floor(cellSize * 0.3));
   const speed = isOutOfCity ? baseSpeed * 0.3 : baseSpeed;

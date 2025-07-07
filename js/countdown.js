@@ -45,12 +45,15 @@ function formatTime() {
 }
 
 function drawCountdown() {
+  updateCountdown();
+
   push();
   fill(255, 255, 255, 200);
   noStroke();
   const countdownText = formatTime();
   textAlign(RIGHT, TOP);
   textSize(16);
+  textStyle(NORMAL);
 
   // Background rectangle
   const textW = textWidth(countdownText);

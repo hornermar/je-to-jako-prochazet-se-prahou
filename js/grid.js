@@ -1,15 +1,3 @@
-const COLORS = {
-  GREEN: [216, 239, 223],
-  CITY: [254, 248, 231],
-  CENTER: [254, 243, 211],
-  WATER: [175, 204, 250],
-  WHITE: [255, 255, 255],
-};
-
-function lightenColor(color, amount = 4) {
-  return color.map((c) => Math.min(255, c + amount));
-}
-
 function drawInGrid(cell, emoji, isFlipped = false) {
   push();
 
@@ -29,6 +17,7 @@ function drawInGrid(cell, emoji, isFlipped = false) {
 }
 
 function drawGrid() {
+  background(COLORS.GREEN);
   // Draw Prague map
   noStroke();
   for (let iy = 0; iy < grid.length; iy++) {
@@ -36,7 +25,8 @@ function drawGrid() {
       const cell = grid[iy][ix];
 
       // Apply chessboard effect: alternate based on both row and column
-      const isCheckerboardLight = (iy + ix) % 2 === 1;
+      // const isCheckerboardLight = (iy + ix) % 2 === 1;
+      const isCheckerboardLight = false;
 
       if (cell === 0) {
         const color = isCheckerboardLight
