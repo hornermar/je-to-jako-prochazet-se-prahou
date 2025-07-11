@@ -2,7 +2,18 @@ const player = {
   position: { x: 0, y: 0 },
   isMoving: false,
   direction: "right",
+  visitedCells: {},
+  allowedToMove: true,
 };
+
+// Mobile touch controls
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let mobileMovement = { x: 0, y: 0 };
+let isTouching = false;
+const minSwipeDistance = 20; // Minimum distance for a swipe to register
 
 function initializePlayer(gridX, gridY) {
   player.position.x = gridX * cellSize;
@@ -10,6 +21,8 @@ function initializePlayer(gridX, gridY) {
 }
 
 function movePlayer() {
+  if (!player.allowedToMove) return;
+
   let isMoving = false;
 
   // Get current player grid position
@@ -21,14 +34,15 @@ function movePlayer() {
   const currentContent =
     grid[currentGridPos.y] && grid[currentGridPos.y][currentGridPos.x];
 
-  const isOutOfCity = currentContent === 0 || currentContent === 3;
+  const isOutOfCity = currentContent === 0;
 
-  const baseSpeed = Math.max(2, Math.floor(cellSize * 0.3));
-  const speed = isOutOfCity ? baseSpeed * 0.3 : baseSpeed;
+  const baseSpeed = Math.max(2, Math.floor(cellSize * 0.1));
+  const speed = isOutOfCity ? baseSpeed * 0.1 : baseSpeed;
 
   let deltaX = 0;
   let deltaY = 0;
 
+  // Desktop keyboard controls
   if (keyIsDown(RIGHT_ARROW)) {
     deltaX = 1;
     isMoving = true;
@@ -47,6 +61,48 @@ function movePlayer() {
     isMoving = true;
   }
 
+  // Mobile touch controls
+  if (isTouching && isMobileDevice()) {
+    // Get current touch position
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // Calculate relative position from center
+    const touchDeltaX = mouseX - centerX;
+    const touchDeltaY = mouseY - centerY;
+
+    // Determine movement direction based on which quadrant is being touched
+    if (Math.abs(touchDeltaX) > Math.abs(touchDeltaY)) {
+      // Horizontal movement
+      deltaX = touchDeltaX > 0 ? 1 : -1;
+      deltaY = 0;
+      player.direction = touchDeltaX > 0 ? "right" : "left";
+    } else {
+      // Vertical movement
+      deltaX = 0;
+      deltaY = touchDeltaY > 0 ? 1 : -1;
+    }
+
+    isMoving = true;
+  }
+
+  // Legacy mobile movement for single taps (kept for compatibility)
+  if (mobileMovement.x !== 0 || mobileMovement.y !== 0) {
+    deltaX = mobileMovement.x;
+    deltaY = mobileMovement.y;
+    isMoving = true;
+
+    if (mobileMovement.x > 0) {
+      player.direction = "right";
+    } else if (mobileMovement.x < 0) {
+      player.direction = "left";
+    }
+
+    // Reset mobile movement after applying
+    mobileMovement.x = 0;
+    mobileMovement.y = 0;
+  }
+
   const { position } = player;
   const newX = position.x + deltaX * speed;
   const newY = position.y + deltaY * speed;
@@ -57,9 +113,20 @@ function movePlayer() {
     y: newY + cellSize / 2,
   });
 
+  const artwork = isCollidingWithArtwork(newPosition);
+
   if (isCollidingWithObstacle(newPosition)) {
-    console.log("Collision detected, player cannot move");
     return;
+  }
+
+  if (artwork) {
+    const cellKey = `${newPosition.x}-${newPosition.y}`;
+
+    if (!player.visitedCells[cellKey]) {
+      player.visitedCells[cellKey] = true;
+
+      drawArtworkModal(newPosition, artwork);
+    }
   }
 
   player.isMoving = isMoving;
@@ -79,6 +146,37 @@ function drawPlayer() {
   drawInGrid(
     { x: position.x / cellSize, y: position.y / cellSize },
     "🚶‍♀️",
+    undefined,
     isFlipped
+  );
+}
+
+// Touch event handlers for mobile controls
+function touchStarted(event) {
+  // Only enable touch controls on mobile devices and only if touch is on the canvas
+  if (!isMobileDevice()) return;
+  if (event && event.target && event.target.tagName !== "CANVAS") return;
+
+  touchStartX = mouseX;
+  touchStartY = mouseY;
+  isTouching = true;
+}
+
+function touchEnded(event) {
+  // Only enable touch controls on mobile devices and only if touch is on the canvas
+  if (!isMobileDevice()) return;
+  if (event && event.target && event.target.tagName !== "CANVAS") return;
+
+  isTouching = false;
+  touchEndX = mouseX;
+  touchEndY = mouseY;
+}
+
+// Helper function to detect mobile devices
+function isMobileDevice() {
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    ) || "ontouchstart" in window
   );
 }

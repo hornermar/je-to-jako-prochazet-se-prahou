@@ -24,33 +24,49 @@ function stayInTheWorld(position) {
   return position;
 }
 
-function isCollidingWithObstacle(destination) {
-  // const { x, y } = destination;
+function isCollidingWithArtwork(destination) {
+  const { x, y } = destination;
 
-  // Check if out of bounds
-  // if (y < 0 || x < 0 || y >= grid.length || x >= grid[0].length) {
-  //   return false; // Let constrain() handle bounds, don't block as collision
-  // }
+  for (let artwork of artworks) {
+    const artworkX = artwork.position.x;
+    const artworkY = artwork.position.y;
+    const visibility = artwork.visibility || 0;
 
-  // const content = grid[y][x];
+    // Check if destination is within the visibility range of the artwork
+    const deltaX = Math.abs(x - artworkX);
+    const deltaY = Math.abs(y - artworkY);
 
-  // if (content === 0) {
-  //   return true;
-  // }
+    // Check if within the square area defined by visibility
+    if (deltaX <= visibility && deltaY <= visibility) {
+      return artwork;
+    }
+  }
 
   return false;
 }
 
-function updateCamera() {
-  // Calculate target camera position to center player on screen
-  const targetX = player.position.x + cellSize / 2 - width / 2;
-  const targetY = player.position.y + cellSize / 2 - height / 2;
+function isCollidingWithObstacle(destination) {
+  const { x, y } = destination;
 
-  // Camera movement with bounds checking
-  const worldWidth = cols * cellSize;
-  const worldHeight = rows * cellSize;
+  const content = grid[y][x];
 
-  camera.x = constrain(targetX, 0, Math.max(0, worldWidth - width));
-  camera.y = constrain(targetY, 0, Math.max(0, worldHeight - height));
-  translate(-camera.x, -camera.y);
+  if (content === 3) {
+    return true;
+  }
+
+  return false;
+}
+
+function getCell(cx, cy) {
+  return cy >= 0 && cy < grid.length && cx >= 0 && cx < grid[cy].length
+    ? grid[cy][cx]
+    : null;
+}
+
+function centerMapOnArtwork(artwork) {
+  if (!artwork || !artwork.position) return;
+
+  const { x, y } = artwork.position;
+  player.position.x = x * cellSize;
+  player.position.y = y * cellSize;
 }

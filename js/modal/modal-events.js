@@ -44,3 +44,9 @@ function handleModalInput() {
     }
   }
 }
+
+// Touch support for modal buttons
+function handleModalTouchInput() {
+  // Use the same logic as handleModalInput, but can be called from touchStarted/touchEnded
+  handleModalInput();
+}

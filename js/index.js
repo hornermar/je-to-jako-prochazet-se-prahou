@@ -1,9 +1,8 @@
-// Universal constants and variables
 const rows = grid.length;
 const cols = grid[0].length;
 
 const calculatedCellSize = Math.floor(window.innerHeight / rows);
-const minCellSize = 17;
+const minCellSize = 40;
 const cellSize =
   calculatedCellSize < minCellSize ? minCellSize : calculatedCellSize;
 
@@ -12,7 +11,7 @@ const route = {
   end: { x: 40, y: 16 },
 };
 
-let gameStarted = false;
+let gameStarted = true;
 
 // Language data
 let lang = "cs";
@@ -27,64 +26,6 @@ function setup() {
   createCanvas(window.innerWidth, window.innerHeight);
 
   initializePlayer(route.start.x, route.start.y);
-
-  // Show welcome modal
-  showWelcomeModal();
-}
-
-function showWelcomeModal() {
-  showModal({
-    id: "welcome",
-    title: "Welcome to Prague Walking Game!",
-    description:
-      "Use arrow keys to move through the city. Reach the finish flag 🏁 within 30 minutes. Moving through water and obstacles will slow you down. Good luck!",
-    buttons: [
-      {
-        label: "Cancel",
-        isPrimary: false,
-        callback: function () {
-          gameStarted = true;
-        },
-      },
-      {
-        label: "Start Game",
-        isPrimary: true,
-        callback: function () {
-          gameStarted = true;
-        },
-      },
-      {
-        label: "Show Help",
-        isPrimary: false,
-        closeModal: false, // Don't close the welcome modal when clicking this
-        callback: function () {
-          showHelpModal();
-        },
-      },
-    ],
-    position: "center",
-    layer: 0,
-  });
-}
-
-function showHelpModal() {
-  showModal({
-    id: "help",
-    title: "How to Play",
-    description:
-      "🚶‍♀️ Use arrow keys to move\n🏁 Reach the finish flag\n⏰ Complete within 30 minutes\n💧 Water slows you down",
-    buttons: [
-      {
-        label: "Got it!",
-        isPrimary: true,
-        callback: function () {
-          // This will close just the help modal
-        },
-      },
-    ],
-    position: "top",
-    layer: 1,
-  });
 }
 
 function windowResized() {
@@ -92,19 +33,28 @@ function windowResized() {
 }
 
 function draw() {
-  drawWithCamera(() => {
-    drawGrid();
-    if (gameStarted) {
-      movePlayer();
-    }
-    drawPlayer();
-  });
+  // if (openingScreen) {
+  //   drawOpeningScreen();
+  // } else
 
-  // Draw modal if it's shown
-  drawModal(); // Always call drawModal, it handles the check internally
-
-  // UI elements outside of camera transformation
   if (gameStarted) {
+    drawWithCamera(() => {
+      drawGrid();
+
+      movePlayer();
+
+      drawPlayer();
+    });
+
+    drawModal();
+
+    if (modalStack.length > 0) {
+      player.allowedToMove = false;
+    } else {
+      player.allowedToMove = true;
+    }
+
+    // UI elements outside of camera transformation
     startCountdown();
     drawCountdown();
   }
@@ -112,4 +62,8 @@ function draw() {
 
 function mousePressed() {
   handleModalInput();
+}
+
+function touchStarted() {
+  handleModalTouchInput();
 }

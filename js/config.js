@@ -1,12 +1,15 @@
 const COLORS = {
-  GREEN: [213, 230, 211],
-  CITY: [247, 239, 223],
-  CENTER: [245, 223, 176],
-  WATER: [131, 200, 222],
+  GREEN: [49, 84, 78], // 49, 84, 78
+  CITY: [205, 147, 169],
+  CENTER: [160, 102, 127],
+  WATER: [103, 36, 107],
   WHITE: [255, 255, 255],
   BLACK: [0, 0, 0],
-  DARK_GRAY: [120, 120, 120],
-  LIGHT_GRAY: [120, 120, 120],
+  GRAY_DARK: [120, 120, 120],
+  GRAY_LIGHT: [220, 220, 220],
+  GRAY_MEDIUM: [140, 140, 140],
+  GRAY_MEDIUM_LIGHT: [200, 200, 200],
+  GRAY_MEDIUM_DARK: [120, 120, 120],
 };
 
 function lightenColor(color, amount = 4) {

@@ -28,7 +28,7 @@ function drawSingleModal(modalConfig, stackIndex) {
 
 function drawModalBackground(modalX, modalY, modalW, modalH) {
   // Shadow
-  fill(COLORS.DARK_GRAY);
+  fill(COLORS.GRAY_DARK);
   noStroke();
   rect(
     modalX + MODAL_CONFIG.SHADOW_OFFSET,
@@ -96,7 +96,7 @@ function drawModalContent(modalX, modalY, modalW, _modalH, modalConfig) {
   // Draw description if provided
   if (modalConfig.description) {
     textSize(MODAL_CONFIG.TEXT.DESCRIPTION_SIZE);
-    fill(COLORS.DARK_GRAY);
+    fill(COLORS.GRAY_DARK);
     const descLines = getWrappedTextLines(modalConfig.description, maxWidth);
 
     for (let i = 0; i < descLines.length; i++) {
@@ -158,14 +158,14 @@ function drawButton(btn, isPrimary = false) {
   rect(btn.x + btn.w - 2, btn.y, 2, btn.h); // right
 
   // Bottom shadow
-  fill(COLORS.LIGHT_GRAY);
+  fill(COLORS.GRAY_LIGHT);
   rect(btn.x, btn.y + btn.h - 1, btn.w, 1);
 
   // Button text
   if (isPrimary) {
     fill(...COLORS.WHITE);
   } else {
-    fill(COLORS.DARK_GRAY);
+    fill(COLORS.GRAY_DARK);
   }
 
   textAlign(CENTER, CENTER);

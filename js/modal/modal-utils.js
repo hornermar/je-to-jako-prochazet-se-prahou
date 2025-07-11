@@ -1,6 +1,13 @@
 function calculateModalPosition(modalConfig, modalW, modalH, stackIndex = 0) {
   const stackOffset = stackIndex * MODAL_CONFIG.STACK_OFFSET;
 
+  //TODO: More randomized positions
+  if (!modalConfig.position) {
+    const positions = ["top", "bottom", "center"];
+    modalConfig.position =
+      positions[Math.floor(Math.random() * positions.length)];
+  }
+
   if (
     typeof modalConfig.position === "object" &&
     modalConfig.position.x &&
