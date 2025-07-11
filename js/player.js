@@ -152,16 +152,6 @@ function drawPlayer() {
 }
 
 // Touch event handlers for mobile controls
-function touchStarted(event) {
-  // Only enable touch controls on mobile devices and only if touch is on the canvas
-  if (!isMobileDevice()) return;
-  if (event && event.target && event.target.tagName !== "CANVAS") return;
-
-  touchStartX = mouseX;
-  touchStartY = mouseY;
-  isTouching = true;
-}
-
 function touchEnded(event) {
   // Only enable touch controls on mobile devices and only if touch is on the canvas
   if (!isMobileDevice()) return;

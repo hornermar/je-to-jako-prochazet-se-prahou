@@ -2,7 +2,7 @@ const rows = grid.length;
 const cols = grid[0].length;
 
 const calculatedCellSize = Math.floor(window.innerHeight / rows);
-const minCellSize = 40;
+const minCellSize = 30;
 const cellSize =
   calculatedCellSize < minCellSize ? minCellSize : calculatedCellSize;
 
@@ -64,6 +64,17 @@ function mousePressed() {
   handleModalInput();
 }
 
-function touchStarted() {
-  handleModalTouchInput();
+function touchStarted(event) {
+  // If a modal is open, handle modal input and do not move player
+  if (typeof getModalStack === "function" && getModalStack().length > 0) {
+    handleModalTouchInput();
+    return;
+  }
+  // Player movement touch logic (from player.js)
+  if (typeof isMobileDevice === "function" && isMobileDevice()) {
+    if (event && event.target && event.target.tagName !== "CANVAS") return;
+    if (typeof touchStartX !== "undefined") touchStartX = mouseX;
+    if (typeof touchStartY !== "undefined") touchStartY = mouseY;
+    if (typeof isTouching !== "undefined") isTouching = true;
+  }
 }
