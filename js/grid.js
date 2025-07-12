@@ -30,19 +30,35 @@ function drawGrid() {
       if (cell === 0) {
         fill(...COLORS.GRAY_LIGHT);
         rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
-      } else if (cell === 1 || cell === 2) {
+      } else if (cell === 1) {
         fill(...COLORS.CITY);
-        drawRoundedCity(ix, iy);
-      } else if (cell === 3 || cell === 4) {
-        fill(...COLORS.WATER);
+        drawRoundedCell(ix, iy, cell);
+      } else if (cell === 2) {
+        fill(...COLORS.CITY);
         rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
 
+        fill(...COLORS.CENTER);
+        drawRoundedCell(ix, iy, cell);
+      } else if (cell === 3 || cell === 4) {
+        // TODO: Handle better
+        if (iy > 16 && iy < 26) {
+          fill(...COLORS.CENTER);
+        } else {
+          fill(...COLORS.CITY);
+        }
+        rect(ix * cellSize, iy * cellSize, cellSize, cellSize);
+
+        fill(...COLORS.WATER);
+        drawRoundedCell(ix, iy, cell);
         if (cell === 4) {
           drawInGrid({ x: ix, y: iy }, "🌉", cellSize * 0.7);
         }
       }
 
-      drawGlitter(ix, iy);
+      // Draw visited artwork
+      drawVisitedArtwork(ix, iy);
+
+      // drawGlitter(ix, iy);
     }
   }
 
@@ -80,60 +96,77 @@ function drawGrid() {
   drawInGrid(route.end, "🏁");
 }
 
-function drawRoundedCity(x, y) {
+const getRadius = (shouldRound, radius) => (shouldRound ? radius : 0);
+const isCity = (v) => v === 1 || v === 2;
+const isNeighborWith = (cellType, firstCell, secondCell) =>
+  firstCell === cellType && secondCell === cellType;
+
+function drawRoundedCell(x, y, cellType) {
+  const cornerRadius = cellSize * 0.7;
+
   const topCell = getCell(x, y - 1);
   const rightCell = getCell(x + 1, y);
   const bottomCell = getCell(x, y + 1);
   const leftCell = getCell(x - 1, y);
 
-  const cornerRadius = cellSize * 0.7;
+  let shouldRoundTL = false,
+    shouldRoundTR = false,
+    shouldRoundBR = false,
+    shouldRoundBL = false;
 
-  const shouldRoundTL = topCell === 0 && leftCell === 0;
-  const shouldRoundTR = topCell === 0 && rightCell === 0;
-  const shouldRoundBR = bottomCell === 0 && rightCell === 0;
-  const shouldRoundBL = bottomCell === 0 && leftCell === 0;
-
-  const tlRadius = shouldRoundTL ? cornerRadius : 0;
-  const trRadius = shouldRoundTR ? cornerRadius : 0;
-  const brRadius = shouldRoundBR ? cornerRadius : 0;
-  const blRadius = shouldRoundBL ? cornerRadius : 0;
+  if (cellType === 1) {
+    shouldRoundTL = isNeighborWith(0, topCell, leftCell);
+    shouldRoundTR = isNeighborWith(0, topCell, rightCell);
+    shouldRoundBR = isNeighborWith(0, bottomCell, rightCell);
+    shouldRoundBL = isNeighborWith(0, bottomCell, leftCell);
+  } else if (cellType === 3 || cellType === 4) {
+    shouldRoundTL = isCity(topCell) && isCity(leftCell);
+    shouldRoundTR = isCity(topCell) && isCity(rightCell);
+    shouldRoundBR = isCity(bottomCell) && isCity(rightCell);
+    shouldRoundBL = isCity(bottomCell) && isCity(leftCell);
+  } else if (cellType === 2) {
+    shouldRoundTL = isNeighborWith(1, topCell, leftCell);
+    shouldRoundTR = isNeighborWith(1, topCell, rightCell);
+    shouldRoundBR = isNeighborWith(1, bottomCell, rightCell);
+    shouldRoundBL = isNeighborWith(1, bottomCell, leftCell);
+  }
 
   rect(
     x * cellSize,
     y * cellSize,
     cellSize,
     cellSize,
-    tlRadius,
-    trRadius,
-    brRadius,
-    blRadius
+    getRadius(shouldRoundTL, cornerRadius),
+    getRadius(shouldRoundTR, cornerRadius),
+    getRadius(shouldRoundBR, cornerRadius),
+    getRadius(shouldRoundBL, cornerRadius)
   );
 }
 
-function drawGreyRect(ix, iy) {
-  push();
-  translate(ix * cellSize + cellSize / 2, iy * cellSize + cellSize / 2);
+// function drawGreyRect(ix, iy) {
+//   push();
+//   translate(ix * cellSize + cellSize / 2, iy * cellSize + cellSize / 2);
 
-  const colors = [
-    COLORS.BLACK,
-    COLORS.WHITE,
-    COLORS.GRAY_DARK,
-    COLORS.GRAY_LIGHT,
-    COLORS.GRAY_MEDIUM,
-    COLORS.GRAY_MEDIUM_LIGHT,
-    COLORS.GRAY_MEDIUM_DARK,
-  ];
+//   const colors = [
+//     COLORS.BLACK,
+//     COLORS.WHITE,
+//     COLORS.GRAY_DARK,
+//     COLORS.GRAY_LIGHT,
+//     COLORS.GRAY_MEDIUM,
+//     COLORS.GRAY_MEDIUM_LIGHT,
+//     COLORS.GRAY_MEDIUM_DARK,
+//   ];
 
-  const colorType = (ix * 2 + iy) % colors.length;
-  const size = cellSize * 0.15;
+//   const colorType = (ix * 2 + iy) % colors.length;
+//   const size = cellSize * 0.15;
 
-  fill(...colors[colorType]);
-  noStroke();
+//   fill(...colors[colorType]);
+//   noStroke();
 
-  rect(-size / 2, -size / 2, size, size);
+//   rect(-size / 2, -size / 2, size, size);
 
-  pop();
-}
+//   pop();
+// }
 
 function drawGlitter(ix, iy) {
   const cellKey = `${ix}-${iy}`;
@@ -151,5 +184,13 @@ function drawGlitter(ix, iy) {
         drawGreyRect(ix, iy);
       }
     }
+  }
+}
+
+function drawVisitedArtwork(ix, iy) {
+  const cellKey = `${ix}-${iy}`;
+
+  if (player.visitedCells && player.visitedCells[cellKey]) {
+    drawInGrid({ x: ix, y: iy }, "🗿", cellSize * 0.6);
   }
 }
