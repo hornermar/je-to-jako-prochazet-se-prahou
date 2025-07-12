@@ -12,6 +12,9 @@ const route = {
 };
 
 let gameStarted = true;
+let lives = 4;
+let artworksVisited = 0;
+let gameOver = false;
 
 // Language data
 let lang = "cs";
@@ -42,7 +45,6 @@ function draw() {
       drawGrid();
 
       movePlayer();
-
       drawPlayer();
     });
 
@@ -57,7 +59,24 @@ function draw() {
     // UI elements outside of camera transformation
     startCountdown();
     drawCountdown();
+
+    drawLives();
+
+    if (gameOver) {
+      drawGameOver();
+      noLoop();
+    }
   }
+}
+
+// Draw game over message
+function drawGameOver() {
+  push();
+  textAlign(CENTER, CENTER);
+  textSize(48);
+  fill(...COLORS.CONTRAST);
+  text("GAME OVER", width / 2, height / 2);
+  pop();
 }
 
 function mousePressed() {

@@ -55,10 +55,14 @@ function drawGrid() {
         }
       }
 
-      // Draw visited artwork
-      drawVisitedArtwork(ix, iy);
-
       // drawGlitter(ix, iy);
+    }
+  }
+
+  // Draw visited artwork blotches OVER the grid
+  for (let iy = 0; iy < grid.length; iy++) {
+    for (let ix = 0; ix < grid[iy].length; ix++) {
+      drawGlitter(ix, iy);
     }
   }
 
@@ -119,16 +123,16 @@ function drawRoundedCell(x, y, cellType) {
     shouldRoundTR = isNeighborWith(0, topCell, rightCell);
     shouldRoundBR = isNeighborWith(0, bottomCell, rightCell);
     shouldRoundBL = isNeighborWith(0, bottomCell, leftCell);
-  } else if (cellType === 3 || cellType === 4) {
-    shouldRoundTL = isCity(topCell) && isCity(leftCell);
-    shouldRoundTR = isCity(topCell) && isCity(rightCell);
-    shouldRoundBR = isCity(bottomCell) && isCity(rightCell);
-    shouldRoundBL = isCity(bottomCell) && isCity(leftCell);
   } else if (cellType === 2) {
     shouldRoundTL = isNeighborWith(1, topCell, leftCell);
     shouldRoundTR = isNeighborWith(1, topCell, rightCell);
     shouldRoundBR = isNeighborWith(1, bottomCell, rightCell);
     shouldRoundBL = isNeighborWith(1, bottomCell, leftCell);
+  } else if (cellType === 3 || cellType === 4) {
+    shouldRoundTL = isCity(topCell) && isCity(leftCell);
+    shouldRoundTR = isCity(topCell) && isCity(rightCell);
+    shouldRoundBR = isCity(bottomCell) && isCity(rightCell);
+    shouldRoundBL = isCity(bottomCell) && isCity(leftCell);
   }
 
   rect(
@@ -143,30 +147,40 @@ function drawRoundedCell(x, y, cellType) {
   );
 }
 
-// function drawGreyRect(ix, iy) {
-//   push();
-//   translate(ix * cellSize + cellSize / 2, iy * cellSize + cellSize / 2);
+function drawGreyRect(ix, iy) {
+  push();
+  translate(ix * cellSize + cellSize / 2, iy * cellSize + cellSize / 2);
 
-//   const colors = [
-//     COLORS.BLACK,
-//     COLORS.WHITE,
-//     COLORS.GRAY_DARK,
-//     COLORS.GRAY_LIGHT,
-//     COLORS.GRAY_MEDIUM,
-//     COLORS.GRAY_MEDIUM_LIGHT,
-//     COLORS.GRAY_MEDIUM_DARK,
-//   ];
+  const colors = [
+    COLORS.BLACK,
+    COLORS.GRAY_DARK,
+    COLORS.GRAY_MEDIUM,
+    COLORS.GRAY_MEDIUM_LIGHT,
+    COLORS.GRAY_MEDIUM_DARK,
+  ];
 
-//   const colorType = (ix * 2 + iy) % colors.length;
-//   const size = cellSize * 0.15;
+  // Deterministic random seed per cell for consistent layout
+  randomSeed(ix * 10007 + iy * 10009);
+  const rectCount = floor(random(1, 4));
+  // All rectangles in this cell have the same size
+  const size = cellSize * 0.12;
 
-//   fill(...colors[colorType]);
-//   noStroke();
+  for (let i = 0; i < rectCount; i++) {
+    const colorType = floor(random(colors.length));
+    fill(...colors[colorType]);
+    noStroke();
+    // Position: center +/- up to 60% of cell, can go a bit outside
+    const x = random(-cellSize * 0.6, cellSize * 0.6);
+    const y = random(-cellSize * 0.6, cellSize * 0.6);
+    push();
+    translate(x, y);
+    // No rotation
+    rect(-size / 2, -size / 2, size, size, size * 0.2);
+    pop();
+  }
 
-//   rect(-size / 2, -size / 2, size, size);
-
-//   pop();
-// }
+  pop();
+}
 
 function drawGlitter(ix, iy) {
   const cellKey = `${ix}-${iy}`;
@@ -184,13 +198,5 @@ function drawGlitter(ix, iy) {
         drawGreyRect(ix, iy);
       }
     }
-  }
-}
-
-function drawVisitedArtwork(ix, iy) {
-  const cellKey = `${ix}-${iy}`;
-
-  if (player.visitedCells && player.visitedCells[cellKey]) {
-    drawInGrid({ x: ix, y: iy }, "🗿", cellSize * 0.6);
   }
 }

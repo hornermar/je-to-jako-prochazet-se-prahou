@@ -70,3 +70,11 @@ function centerMapOnArtwork(artwork) {
   player.position.x = x * cellSize;
   player.position.y = y * cellSize;
 }
+
+function onArtworkVisited() {
+  artworksVisited++;
+  lives -= 1;
+  if (lives <= 0) {
+    gameOver = true;
+  }
+}

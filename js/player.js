@@ -125,6 +125,13 @@ function movePlayer() {
     if (!player.visitedCells[cellKey]) {
       player.visitedCells[cellKey] = true;
 
+      if (
+        artwork.position.x === newPosition.x &&
+        artwork.position.y === newPosition.y
+      ) {
+        onArtworkVisited();
+      }
+
       drawArtworkModal(newPosition, artwork);
     }
   }
