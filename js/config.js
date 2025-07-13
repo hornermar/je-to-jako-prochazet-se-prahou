@@ -1,8 +1,8 @@
 const COLORS = {
-  GREEN: [49, 84, 78], // 49, 84, 78
-  CITY: [212, 182, 194],
-  CENTER: [191, 134, 156],
-  WATER: [108, 101, 171], // 72, 64, 137
+  GREEN: [194, 217, 166], // 49, 84, 78
+  CITY: [241, 240, 229], // 212, 182, 194
+  CENTER: [226, 213, 181], // 191, 134, 156
+  WATER: [153, 190, 219], // 108, 101, 171
   CONTRAST: [200, 0, 0],
   WHITE: [255, 255, 255],
   BLACK: [0, 0, 0],
@@ -42,4 +42,9 @@ const MODAL_CONFIG = {
   SHADOW_OFFSET: 6,
   BORDER_WIDTH: 3,
   ACCENT_HEIGHT: 4,
+};
+
+const GRID_CONFIG = {
+  MIN_CELL_SIZE: 30,
+  CORNER_RADIUS: (cellSize) => cellSize * 0.7,
 };

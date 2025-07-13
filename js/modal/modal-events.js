@@ -32,7 +32,6 @@ function checkModalClick(modalConfig, stackIndex) {
 }
 
 function handleModalInput() {
-  const modalStack = getModalStack();
   if (modalStack.length === 0) return;
 
   // Check modals from top to bottom (reverse order)

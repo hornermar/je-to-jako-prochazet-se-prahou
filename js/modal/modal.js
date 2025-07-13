@@ -31,10 +31,6 @@ function hideAllModals() {
   modalStack = [];
 }
 
-function getModalStack() {
-  return modalStack;
-}
-
 function drawArtworkModal(position, artwork) {
   if (!artwork) return;
 

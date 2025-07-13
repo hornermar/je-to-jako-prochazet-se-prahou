@@ -1,5 +1,4 @@
 function drawModal() {
-  const modalStack = getModalStack();
   if (modalStack.length === 0) return;
 
   for (let i = 0; i < modalStack.length; i++) {
@@ -108,8 +107,6 @@ function drawModalContent(modalX, modalY, modalW, _modalH, modalConfig) {
 function drawModalButtons(modalConfig) {
   if (!modalConfig.buttons || modalConfig.buttons.length === 0) return;
 
-  // Calculate stack index from modal position
-  const modalStack = getModalStack();
   const stackIndex = modalStack.findIndex((m) => m.id === modalConfig.id);
   const { startX, buttonY } = calculateButtonPositions(modalConfig, stackIndex);
 

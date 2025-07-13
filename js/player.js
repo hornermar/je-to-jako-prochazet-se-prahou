@@ -2,8 +2,9 @@ const player = {
   position: { x: 0, y: 0 },
   isMoving: false,
   direction: "right",
-  visitedCells: {},
   allowedToMove: true,
+  visitedCells: {},
+  artworksVisited: [],
 };
 
 // Mobile touch controls
@@ -113,23 +114,19 @@ function movePlayer() {
     y: newY + cellSize / 2,
   });
 
-  const artwork = isCollidingWithArtwork(newPosition);
-
   if (isCollidingWithObstacle(newPosition)) {
     return;
   }
 
+  const artwork = isCollidingWithArtwork(newPosition);
   if (artwork) {
     const cellKey = `${newPosition.x}-${newPosition.y}`;
 
     if (!player.visitedCells[cellKey]) {
       player.visitedCells[cellKey] = true;
 
-      if (
-        artwork.position.x === newPosition.x &&
-        artwork.position.y === newPosition.y
-      ) {
-        onArtworkVisited();
+      if (!player.artworksVisited.includes(artwork.id)) {
+        player.artworksVisited.push(artwork.id);
       }
 
       drawArtworkModal(newPosition, artwork);
@@ -137,11 +134,10 @@ function movePlayer() {
   }
 
   player.isMoving = isMoving;
-  player.position = stayInTheWorld({ x: newX, y: newY });
+  player.position = stayInWorld({ x: newX, y: newY });
 
   if (isPlayerAtEnd()) {
-    console.log("🎉 Congratulations! You reached the end!");
-    stopCountdown();
+    gameFinished = true;
   }
 }
 

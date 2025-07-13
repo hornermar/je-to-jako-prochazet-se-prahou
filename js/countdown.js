@@ -17,10 +17,10 @@ function updateCountdown() {
     const elapsed = millis() - countdown.startTime;
     countdown.currentTime = Math.max(0, countdown.totalTime - elapsed);
 
-    // Stop countdown when it reaches zero
     if (countdown.currentTime <= 0) {
-      countdown.isRunning = false;
+      stopCountdown();
       countdown.currentTime = 0;
+      gameOver = true;
     }
   }
 }
@@ -29,10 +29,6 @@ function stopCountdown() {
   if (countdown.isRunning) {
     countdown.isRunning = false;
   }
-}
-
-function isTimeUp() {
-  return countdown.currentTime <= 0 && countdown.startTime > 0;
 }
 
 function formatTime() {
@@ -52,13 +48,10 @@ function drawCountdown() {
   noStroke();
   const countdownText = formatTime();
   textAlign(RIGHT, TOP);
-  textSize(16);
+  textSize(20);
   textStyle(NORMAL);
 
-  // Background rectangle
-  const textW = textWidth(countdownText);
   const padding = 10;
-  rect(width - textW - padding * 2, 0, textW + padding * 2, 35);
 
   fill(0);
   text(countdownText, width - padding, padding);

@@ -14,7 +14,7 @@ function isPlayerAtEnd() {
   return route.end && cell.x === route.end.x && cell.y === route.end.y;
 }
 
-function stayInTheWorld(position) {
+function stayInWorld(position) {
   const worldWidth = cols * cellSize;
   const worldHeight = rows * cellSize;
 
@@ -71,10 +71,39 @@ function centerMapOnArtwork(artwork) {
   player.position.y = y * cellSize;
 }
 
-function onArtworkVisited() {
-  artworksVisited++;
-  lives -= 1;
-  if (lives <= 0) {
-    gameOver = true;
+function drawVisitedArtworks() {
+  const cornerRadius = GRID_CONFIG.CORNER_RADIUS(cellSize);
+  const alpha = 150;
+
+  for (let artworkId of player.artworksVisited) {
+    const artwork = artworks.find((a) => a.id === artworkId);
+
+    const artworkX = artwork.position.x;
+    const artworkY = artwork.position.y;
+    const visibility = artwork.visibility || 0;
+
+    if (visibility > 0) {
+      const areaX = (artworkX - visibility) * cellSize;
+      const areaY = (artworkY - visibility) * cellSize;
+      const areaW = (2 * visibility + 1) * cellSize;
+      const areaH = (2 * visibility + 1) * cellSize;
+      push();
+      fill(...COLORS.GRAY_MEDIUM, alpha);
+      rect(areaX, areaY, areaW, areaH, cornerRadius);
+      pop();
+    } else {
+      push();
+      fill(...COLORS.GRAY_MEDIUM, alpha);
+      rect(
+        artworkX * cellSize,
+        artworkY * cellSize,
+        cellSize,
+        cellSize,
+        cornerRadius
+      );
+      pop();
+    }
+
+    // drawInGrid({ x: artworkX, y: artworkY }, "◾");
   }
 }
